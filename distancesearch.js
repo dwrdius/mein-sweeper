@@ -39,6 +39,9 @@ function initTable(){
         for(let j = 0; j< SIZE; j++){
             let cell = document.createElement("td");
             row.append(cell);
+            $(cell).on("click",function(){
+                clicked(new Coord(i,j));
+            })
         }
     }
 
@@ -48,13 +51,17 @@ function getCell(coord){
     return table.children[coord.x].children[coord.y];
 }
 
+function drawOne(coord){
+    let cell = getCell(coord);
+    if(game.board[coord.x][coord.y]){
+        $(cell).text('💣');
+    }
+}
+
 function drawBombs(){
     for(let i = 0; i< SIZE; i++){
         for(let j = 0; j< SIZE; j++){
-            let cell = getCell(new Coord(i,j));
-            if(game.board[i][j]){
-                $(cell).text('💣');
-            }
+            drawOne(new Coord(i,j));
         }
     }
 }
@@ -78,6 +85,11 @@ function shuffle(a) {
     }
     return a;
 }
+
+function clicked(coord){
+    drawOne(coord);
+}
+
 function startGame(){
     game = new Game(SIZE);
     initTable();
@@ -87,4 +99,4 @@ function startGame(){
 
 startGame();
 generateBombs(69);
-drawBombs();
+// drawBombs();
