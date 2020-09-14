@@ -59,6 +59,25 @@ function drawBombs(){
     }
 }
 
+function generateBombs(numberOfBomb){
+    let allTiles = Array(SIZE*SIZE);
+    for(let i=0; i<numberOfBomb; i++){
+        allTiles[i] = true;
+    }
+    shuffle(allTiles);
+    for(let i = 0; i< SIZE; i++){
+        for(let j = 0; j< SIZE; j++){
+            game.board[i][j] = allTiles[i*SIZE + j];
+        }
+    }
+}
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
 function startGame(){
     game = new Game(SIZE);
     initTable();
@@ -67,5 +86,5 @@ function startGame(){
 
 
 startGame();
-game.board[6][9] = 1;
+generateBombs(69);
 drawBombs();
