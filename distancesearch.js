@@ -81,8 +81,10 @@ function drawOne(coord){
 function drawBombs(){
     for(let i = 0; i< SIZE; i++){
         for(let j = 0; j< SIZE; j++){
+            let cell = getCell(new Coord(i,j));
+            $(cell).off("click");
             if(game.board[i][j]){
-                $(`<img src="img/bomb grey.png" style="width:20px;height:20px"></img>`).appendTo(getCell(new Coord(i,j)));
+                $(`<img src="img/bomb grey.png" style="width:20px;height:20px"></img>`).appendTo(cell);
             }
         }
     }
