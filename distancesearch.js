@@ -51,17 +51,39 @@ function getCell(coord){
     return table.children[coord.x].children[coord.y];
 }
 
+function getNeighborBombs(coord){
+    let count = 0;
+    count += game.board?.[coord.x-1]?.[coord.y-1] || 0;
+    count += game.board?.[coord.x-1]?.[coord.y] || 0;
+    count += game.board?.[coord.x-1]?.[coord.y+1] || 0;
+    count += game.board?.[coord.x]?.[coord.y-1] || 0;
+    count += game.board?.[coord.x]?.[coord.y+1] || 0;
+    count += game.board?.[coord.x+1]?.[coord.y-1] || 0;
+    count += game.board?.[coord.x+1]?.[coord.y] || 0;
+    count += game.board?.[coord.x+1]?.[coord.y+1] || 0;
+    return count;
+}
+
 function drawOne(coord){
     let cell = getCell(coord);
     if(game.board[coord.x][coord.y]){
-        $(cell).text('💣');
+        // $(cell).text('💣');
+        drawBombs();
+        $(cell).empty();
+        $(`<img src="img/bomb red.png" style="width:20px;height:20px"></img>`).appendTo(cell);
+    }
+    else{
+        let count = getNeighborBombs(coord);
+        $(cell).text(''+count);
     }
 }
 
 function drawBombs(){
     for(let i = 0; i< SIZE; i++){
         for(let j = 0; j< SIZE; j++){
-            drawOne(new Coord(i,j));
+            if(game.board[i][j]){
+                $(`<img src="img/bomb grey.png" style="width:20px;height:20px"></img>`).appendTo(getCell(new Coord(i,j)));
+            }
         }
     }
 }
@@ -95,7 +117,6 @@ function startGame(){
     initTable();
     window.game = game;
 }
-
 
 startGame();
 generateBombs(69);
