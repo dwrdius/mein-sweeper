@@ -74,7 +74,17 @@ function drawOne(coord){
     }
     else{
         let count = getNeighborBombs(coord);
-        $(cell).text(''+count);
+        if(count === 0){
+            let uncover = breadthFirstSearch(coord);
+            console.log(uncover);
+            for(let e of uncover){
+                let c = getNeighborBombs(e);
+                // if(c)
+                    $(getCell(e)).text(''+c);
+            }
+        }
+        // if(count)
+            $(cell).text(''+count);
     }
 }
 
@@ -112,6 +122,39 @@ function shuffle(a) {
 
 function clicked(coord){
     drawOne(coord);
+}
+
+function notOutOfBounds(coord){
+    return coord.x > 0 && coord.x < SIZE && coord.y > 0 && coord.y < SIZE;
+}
+
+function breadthFirstSearch(coord){
+    let visited = [];
+    let queue = [coord];
+    while(queue.length){
+        let curr = queue.shift();
+        console.log(curr)
+        if(!notOutOfBounds(curr)){
+            continue;
+        }
+        if(getNeighborBombs(curr)){
+            visited.push(curr);
+            continue;
+        }
+        if(visited.some(coord => coord.x === curr.x && coord.y === curr.y)){
+            continue;
+        }
+        visited.push(curr);
+        queue.push(new Coord(curr.x-1, curr.y-1));
+        queue.push(new Coord(curr.x-1, curr.y  ));
+        queue.push(new Coord(curr.x-1, curr.y+1));
+        queue.push(new Coord(curr.x  , curr.y-1));
+        queue.push(new Coord(curr.x  , curr.y+1));
+        queue.push(new Coord(curr.x+1, curr.y-1));
+        queue.push(new Coord(curr.x+1, curr.y  ));
+        queue.push(new Coord(curr.x+1, curr.y+1));
+    }
+    return visited;
 }
 
 function startGame(){
