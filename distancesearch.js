@@ -1,7 +1,20 @@
 "use strict";
 const SIZE = 20;
 let table;
-initTable();
+let game;
+
+class Game{
+    constructor(size){
+        this.board = [];
+        for(let i = 0; i< size; i++){
+            this.board[i] = [];
+            for(let j = 0; j< size; j++){
+                this.board[i].push(0);
+            }
+        }
+    }
+}
+
 class Coord{
     constructor(x,y){
         this.x=x;
@@ -31,12 +44,28 @@ function initTable(){
 
 }
 
-function highlight(coord, color){
-    table.children[coord.x].children[coord.y].style.backgroundColor = color;
+function getCell(coord){
+    return table.children[coord.x].children[coord.y];
 }
 
-function highlightMOAR(coordList, color){
-    for (let e of coordList){
-        highlight(e,color);
+function drawBombs(){
+    for(let i = 0; i< SIZE; i++){
+        for(let j = 0; j< SIZE; j++){
+            let cell = getCell(new Coord(i,j));
+            if(game.board[i][j]){
+                $(cell).text('💣');
+            }
+        }
     }
 }
+
+function startGame(){
+    game = new Game(SIZE);
+    initTable();
+    window.game = game;
+}
+
+
+startGame();
+game.board[6][9] = 1;
+drawBombs();
