@@ -6,10 +6,13 @@ let game;
 class Game{
     constructor(size){
         this.board = [];
+        this.flags = [];
         for(let i = 0; i< size; i++){
             this.board[i] = [];
+            this.flags[i] = [];
             for(let j = 0; j< size; j++){
                 this.board[i].push(0);
+                this.flags[i].push(0);
             }
         }
     }
@@ -37,11 +40,16 @@ function initTable(){
         let row = document.createElement("tr");
         table.append(row);
         for(let j = 0; j< SIZE; j++){
+            let c = new Coord(i,j);
             let cell = document.createElement("td");
             row.append(cell);
             $(cell).on("click",function(){
-                clicked(new Coord(i,j));
-            })
+                clicked(c);
+            });
+            $(cell).on("contextmenu",function(evt){
+                evt.preventDefault();
+                rightClicked(c);
+            });
         }
     }
 
@@ -66,7 +74,10 @@ function getNeighborBombs(coord){
 
 function drawOne(coord){
     let cell = getCell(coord);
-    if(game.board[coord.x][coord.y]){
+    if(game.flags[coord.x][coord.y]){
+        $(`<img src="img/flag.png" style="width:20px;height:20px"></img>`).appendTo(cell);
+    }
+    else if(game.board[coord.x][coord.y]){
         // $(cell).text('💣');
         drawBombs();
         $(cell).empty();
@@ -80,11 +91,11 @@ function drawOne(coord){
             for(let e of uncover){
                 let c = getNeighborBombs(e);
                 // if(c)
-                    $(getCell(e)).text(''+c);
+                    $(getCell(e)).text(''+c).addClass("color-"+c);
             }
         }
         // if(count)
-            $(cell).text(''+count);
+            $(cell).text(''+count).addClass("color-"+count);
     }
 }
 
@@ -94,6 +105,7 @@ function drawBombs(){
             let cell = getCell(new Coord(i,j));
             $(cell).off("click");
             if(game.board[i][j]){
+                $(cell).text('');
                 $(`<img src="img/bomb grey.png" style="width:20px;height:20px"></img>`).appendTo(cell);
             }
         }
@@ -121,11 +133,28 @@ function shuffle(a) {
 }
 
 function clicked(coord){
+    if(game.flags[coord.x][coord.y]){
+        return;
+    }
+    drawOne(coord);
+}
+function rightClicked(coord){
+    flaag(coord);
+}
+
+function flaag(coord){
+    let newCell = getCell(coord);
+    if(game.flags[coord.x][coord.y]){
+        game.flags[coord.x][coord.y] = 0;
+        $(newCell).text('');
+        return;
+    }
+    game.flags[coord.x][coord.y] = 1;
     drawOne(coord);
 }
 
 function notOutOfBounds(coord){
-    return coord.x > 0 && coord.x < SIZE && coord.y > 0 && coord.y < SIZE;
+    return coord.x >= 0 && coord.x < SIZE && coord.y >= 0 && coord.y < SIZE;
 }
 
 function breadthFirstSearch(coord){
