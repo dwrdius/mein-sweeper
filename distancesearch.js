@@ -112,15 +112,62 @@ function drawBombs(){
     }
 }
 
-function generateBombs(numberOfBomb){
-    let allTiles = Array(SIZE*SIZE);
-    for(let i=0; i<numberOfBomb; i++){
-        allTiles[i] = true;
+function generateBombs(numberOfBomb, coord){
+    //let allTiles = Array(SIZE*SIZE);
+    let bombless = [coord];
+    // for(let i=0; i<numberOfBomb; i++){
+    //     allTiles[i] = true;
+    // }
+    let exclusion = 0;
+    if(!coord.x || !coord.y){
+        if(coord.x===SIZE-1 || coord.y===SIZE-1 || !coord.x+coord.y){
+            exclusion = 4;
+        }
+        exclusion = 6;
+    } else if(coord.x+coord.y===SIZE-2){
+        exclusion = 4;
+    } else{
+        exclusion = 9;
     }
-    shuffle(allTiles);
+    let shufflabletiles = Array(SIZE*SIZE-exclusion);
+    for(let i=0; i<numberOfBomb; i++){
+        shufflabletiles[i] = true;
+    }
+    shuffle(shufflabletiles);
+//its own thing
+
+    if(notOutOfBounds(new Coord(coord.x-1, coord.y-1))){
+        bombless.push(new Coord(coord.x-1, coord.y-1));
+    }
+    if(notOutOfBounds(new Coord(coord.x, coord.y-1))){
+        bombless.push(new Coord(coord.x, coord.y-1));
+    }
+    if(notOutOfBounds(new Coord(coord.x+1, coord.y-1))){
+        bombless.push(new Coord(coord.x+1, coord.y-1));
+    }
+    if(notOutOfBounds(new Coord(coord.x-1, coord.y))){
+        bombless.push(new Coord(coord.x-1, coord.y));
+    }
+    if(notOutOfBounds(new Coord(coord.x+1, coord.y))){
+        bombless.push(new Coord(coord.x+1, coord.y));
+    }
+    if(notOutOfBounds(new Coord(coord.x-1, coord.y+1))){
+        bombless.push(new Coord(coord.x-1, coord.y+1));
+    }
+    if(notOutOfBounds(new Coord(coord.x, coord.y+1))){
+        bombless.push(new Coord(coord.x, coord.y+1));
+    }
+    if(notOutOfBounds(new Coord(coord.x+1, coord.y+1))){
+        bombless.push(new Coord(coord.x+1, coord.y+1));
+    }
+//finish gathering list of deletes
     for(let i = 0; i< SIZE; i++){
         for(let j = 0; j< SIZE; j++){
-            game.board[i][j] = allTiles[i*SIZE + j];
+            if(bombless.some((val)=>val.x===i && val.y===j)){
+                shufflabletiles.splice(i*SIZE+j, 0, 0);
+                console.log("hahah");
+            }
+            game.board[i][j] = shufflabletiles[i*SIZE + j];
         }
     }
 }
@@ -133,12 +180,14 @@ function shuffle(a) {
 }
 
 function clicked(coord){
-    if(game.flags[coord.x][coord.y]){
+    if(!game) startGame(coord);
+    else if(game.flags[coord.x][coord.y]){
         return;
     }
     drawOne(coord);
 }
 function rightClicked(coord){
+    if(!game) return;
     flaag(coord);
 }
 
@@ -186,12 +235,9 @@ function breadthFirstSearch(coord){
     return visited;
 }
 
-function startGame(){
+function startGame(coord){
     game = new Game(SIZE);
-    initTable();
     window.game = game;
+    generateBombs(69, coord);
 }
-
-startGame();
-generateBombs(69);
-// drawBombs();
+initTable();
