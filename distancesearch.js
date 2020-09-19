@@ -113,61 +113,27 @@ function drawBombs(){
 }
 
 function generateBombs(numberOfBomb, coord){
-    //let allTiles = Array(SIZE*SIZE);
-    let bombless = [coord];
-    // for(let i=0; i<numberOfBomb; i++){
-    //     allTiles[i] = true;
-    // }
-    let exclusion = 0;
-    if(!coord.x || !coord.y){
-        if(coord.x===SIZE-1 || coord.y===SIZE-1 || !coord.x+coord.y){
-            exclusion = 4;
-        }
-        exclusion = 6;
-    } else if(coord.x+coord.y===SIZE-2){
-        exclusion = 4;
-    } else{
-        exclusion = 9;
-    }
-    let shufflabletiles = Array(SIZE*SIZE-exclusion);
+    let minX = Math.max(0, coord.x-1);
+    let minY = Math.max(0, coord.y-1);
+    let maxX = Math.min(SIZE, coord.x+2);
+    let maxY = Math.min(SIZE, coord.y+2);
+    let safeWidth = maxY - minY;
+    let safeHeight = maxX - minX;
+    let unsafeTiles = Array(SIZE*SIZE-safeWidth*safeHeight);
+    if(numberOfBomb > unsafeTiles.length) throw new Error("too many bombs");
     for(let i=0; i<numberOfBomb; i++){
-        shufflabletiles[i] = true;
+        unsafeTiles[i] = true;
     }
-    shuffle(shufflabletiles);
-//its own thing
+    shuffle(unsafeTiles);
 
-    if(notOutOfBounds(new Coord(coord.x-1, coord.y-1))){
-        bombless.push(new Coord(coord.x-1, coord.y-1));
+    let allTiles = unsafeTiles;
+
+    for(let i = minX; i< maxX; i++){
+        allTiles.splice(i*SIZE + minY, 0, ...Array(safeWidth).fill(0));
     }
-    if(notOutOfBounds(new Coord(coord.x, coord.y-1))){
-        bombless.push(new Coord(coord.x, coord.y-1));
-    }
-    if(notOutOfBounds(new Coord(coord.x+1, coord.y-1))){
-        bombless.push(new Coord(coord.x+1, coord.y-1));
-    }
-    if(notOutOfBounds(new Coord(coord.x-1, coord.y))){
-        bombless.push(new Coord(coord.x-1, coord.y));
-    }
-    if(notOutOfBounds(new Coord(coord.x+1, coord.y))){
-        bombless.push(new Coord(coord.x+1, coord.y));
-    }
-    if(notOutOfBounds(new Coord(coord.x-1, coord.y+1))){
-        bombless.push(new Coord(coord.x-1, coord.y+1));
-    }
-    if(notOutOfBounds(new Coord(coord.x, coord.y+1))){
-        bombless.push(new Coord(coord.x, coord.y+1));
-    }
-    if(notOutOfBounds(new Coord(coord.x+1, coord.y+1))){
-        bombless.push(new Coord(coord.x+1, coord.y+1));
-    }
-//finish gathering list of deletes
     for(let i = 0; i< SIZE; i++){
         for(let j = 0; j< SIZE; j++){
-            if(bombless.some((val)=>val.x===i && val.y===j)){
-                shufflabletiles.splice(i*SIZE+j, 0, 0);
-                console.log("hahah");
-            }
-            game.board[i][j] = shufflabletiles[i*SIZE + j];
+            game.board[i][j] = allTiles[i*SIZE + j];
         }
     }
 }
@@ -211,7 +177,6 @@ function breadthFirstSearch(coord){
     let queue = [coord];
     while(queue.length){
         let curr = queue.shift();
-        console.log(curr)
         if(!notOutOfBounds(curr)){
             continue;
         }
